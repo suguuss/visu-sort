@@ -5,45 +5,126 @@
 	Descritpion : 
 */
 
-#include <iostream>
-#include <cstring>
 using namespace std;
 
-#define SIZE 5
+#include <iostream>
+#include <unistd.h>
+#include <cstdlib>
+#include <cstring>
+#include <thread>
+#include <ctime>
 
-typedef uint32_t type_t;
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include "../includes/gfx.h"
+#include "../includes/array.h"
+
+
+#define WIDTH 	500
+#define HEIGHT 	500
+
+#define SIZE 	WIDTH
+
+// Function prototypes
 type_t* bubble_sort(const type_t* const unsorted_array, uint32_t size);
+uint32_t map(uint32_t x, uint32_t in_min, uint32_t in_max, uint32_t out_min, uint32_t out_max);
 
 int main()
 {
-	type_t test[SIZE] = {2, 5, 61, 2, 4};
+	srand(time(NULL));
 
-	type_t *sorted = bubble_sort(test, SIZE);
+	type_t *unsorted = create_shuffled_array(SIZE);
+	type_t *sorted = bubble_sort(unsorted, SIZE);
 
-	for (size_t i = 0; i < SIZE; i++)
+
+
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
-		cout << sorted[i] << " ";
+		fprintf(stdout, "Couldn't initialise SDL\n");
+		fprintf(stdout, "SDL error : %s\n", SDL_GetError());
 	}
-	cout << endl;
+	SDL_Window *win = SDL_CreateWindow("Visualiser", 
+										SDL_WINDOWPOS_CENTERED, 
+										SDL_WINDOWPOS_CENTERED, 
+										500, 500, 0);
 
+	SDL_Renderer* rend = SDL_CreateRenderer(win, -1, 0);
+
+	bool running = true;
+	SDL_Event event;
+
+	while (running)
+	{
+		while (SDL_PollEvent(&event)) 
+		{
+			switch (event.type) 
+			{
+				case SDL_QUIT:
+					running = false;
+					break;
+				case SDL_KEYDOWN:
+					switch (event.key.keysym.scancode)
+					{
+						case SDL_SCANCODE_ESCAPE:
+							running = false;
+							break;
+						default:
+							break;
+					}
+				default:
+					break;
+			}
+		}
+
+		SDL_SetRenderDrawColor(rend, 0, 0, 0, 255);
+		SDL_RenderClear(rend);
+
+		SDL_SetRenderDrawColor(rend, 255, 255, 255, 255);
+		display_array(rend, sorted, SIZE, WIDTH, HEIGHT);
+
+		SDL_RenderPresent(rend);
+	}
+
+	SDL_DestroyRenderer(rend);
+	SDL_DestroyWindow(win);
+
+	delete[] unsorted;
 	delete[] sorted;
+
 	return 0;
 }
 
+
+
+/**
+ * @brief Scale a value from input range to ouput range
+ * 
+ * @param x Value to be scaled
+ * @param in_min 
+ * @param in_max 
+ * @param out_min 
+ * @param out_max 
+ * @return uint32_t Scaled value
+ */
+uint32_t map(uint32_t x, uint32_t in_min, uint32_t in_max, uint32_t out_min, uint32_t out_max)
+{
+	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+/**
+ * @brief Sorts an array using the BubbleSort algorithm
+ * 
+ * @param unsorted_array Array to sort (won't be touched)
+ * @param size size of the array
+ * @return type_t* Pointer to the sorted array
+ */
 type_t* bubble_sort(const type_t* const unsorted_array, uint32_t size)
 {
 	// Create a copy of the array
 	type_t *sorted_array = new type_t[size];
 	memcpy(sorted_array, unsorted_array, (sizeof *sorted_array) * size);
-	
-	for (size_t i = 0; i < SIZE; i++)
-	{
-		cout << sorted_array[i] << " ";
-	}
-	cout << endl;
 
 	bool sorted = false;
-
 	while (!sorted)
 	{
 		sorted = true;
