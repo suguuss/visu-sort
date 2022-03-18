@@ -23,7 +23,7 @@ using namespace std;
 #define WIDTH 	500
 #define HEIGHT 	500
 
-#define SIZE 	100
+#define SIZE 	WIDTH
 
 // Function prototypes
 void bubble_sort(const type_t* const unsorted_array, type_t* sorted_array, uint32_t size);
