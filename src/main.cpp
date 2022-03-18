@@ -23,20 +23,21 @@ using namespace std;
 #define WIDTH 	500
 #define HEIGHT 	500
 
-#define SIZE 	WIDTH
+#define SIZE 	100
 
 // Function prototypes
-type_t* bubble_sort(const type_t* const unsorted_array, uint32_t size);
+void bubble_sort(const type_t* const unsorted_array, type_t* sorted_array, uint32_t size);
 uint32_t map(uint32_t x, uint32_t in_min, uint32_t in_max, uint32_t out_min, uint32_t out_max);
+
+void renderer(SDL_Renderer *ren, type_t *array);
 
 int main()
 {
 	srand(time(NULL));
 
 	type_t *unsorted = create_shuffled_array(SIZE);
-	type_t *sorted = bubble_sort(unsorted, SIZE);
-
-
+	type_t *sorted = new type_t[SIZE];
+	// type_t *sorted = bubble_sort(unsorted, SIZE);
 
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
@@ -46,10 +47,31 @@ int main()
 	SDL_Window *win = SDL_CreateWindow("Visualiser", 
 										SDL_WINDOWPOS_CENTERED, 
 										SDL_WINDOWPOS_CENTERED, 
-										500, 500, 0);
+										WIDTH, HEIGHT, 0);
 
 	SDL_Renderer* rend = SDL_CreateRenderer(win, -1, 0);
 
+	thread sort(bubble_sort, unsorted, sorted, SIZE);
+	renderer(rend, sorted);
+
+	SDL_DestroyRenderer(rend);
+	SDL_DestroyWindow(win);
+
+	delete[] unsorted;
+	delete[] sorted;
+
+	return 0;
+}
+
+
+/**
+ * @brief Renderer function
+ * 
+ * @param rend SDL_Renderer
+ * @param array Array to be displayed
+ */
+void renderer(SDL_Renderer *rend, type_t *array)
+{
 	bool running = true;
 	SDL_Event event;
 
@@ -80,21 +102,11 @@ int main()
 		SDL_RenderClear(rend);
 
 		SDL_SetRenderDrawColor(rend, 255, 255, 255, 255);
-		display_array(rend, sorted, SIZE, WIDTH, HEIGHT);
+		display_array(rend, array, SIZE, WIDTH, HEIGHT);
 
 		SDL_RenderPresent(rend);
 	}
-
-	SDL_DestroyRenderer(rend);
-	SDL_DestroyWindow(win);
-
-	delete[] unsorted;
-	delete[] sorted;
-
-	return 0;
 }
-
-
 
 /**
  * @brief Scale a value from input range to ouput range
@@ -118,10 +130,9 @@ uint32_t map(uint32_t x, uint32_t in_min, uint32_t in_max, uint32_t out_min, uin
  * @param size size of the array
  * @return type_t* Pointer to the sorted array
  */
-type_t* bubble_sort(const type_t* const unsorted_array, uint32_t size)
+void bubble_sort(const type_t* const unsorted_array, type_t* sorted_array, uint32_t size)
 {
 	// Create a copy of the array
-	type_t *sorted_array = new type_t[size];
 	memcpy(sorted_array, unsorted_array, (sizeof *sorted_array) * size);
 
 	bool sorted = false;
@@ -137,8 +148,7 @@ type_t* bubble_sort(const type_t* const unsorted_array, uint32_t size)
 				sorted_array[i + 1] = sorted_array[i];
 				sorted_array[i] = tmp;
 			}
+			usleep(50);
 		}
 	}
-
-	return sorted_array;
 }
