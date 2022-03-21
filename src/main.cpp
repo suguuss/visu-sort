@@ -24,9 +24,11 @@ using namespace std;
 #define HEIGHT 	500
 
 #define SIZE 	WIDTH
+// #define SIZE 	20
 
 // Function prototypes
 void bubble_sort(const type_t* const unsorted_array, type_t* sorted_array, uint32_t size);
+void selection_sort(const type_t *const unsorted_array, type_t *sorted_array, uint32_t size);
 uint32_t map(uint32_t x, uint32_t in_min, uint32_t in_max, uint32_t out_min, uint32_t out_max);
 
 void renderer(SDL_Renderer *ren, type_t *array);
@@ -38,6 +40,8 @@ int main()
 	type_t *unsorted = create_shuffled_array(SIZE);
 	type_t *sorted = new type_t[SIZE];
 	// type_t *sorted = bubble_sort(unsorted, SIZE);
+	// selection_sort(unsorted, sorted, SIZE);
+
 
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
@@ -51,7 +55,7 @@ int main()
 
 	SDL_Renderer* rend = SDL_CreateRenderer(win, -1, 0);
 
-	thread sort(bubble_sort, unsorted, sorted, SIZE);
+	thread sort(selection_sort, unsorted, sorted, SIZE);
 	renderer(rend, sorted);
 
 	SDL_DestroyRenderer(rend);
@@ -150,5 +154,39 @@ void bubble_sort(const type_t* const unsorted_array, type_t* sorted_array, uint3
 			}
 			usleep(50);
 		}
+	}
+}
+
+
+/**
+ * @brief Sorts an array using the Selection sort algorithm
+ * 
+ * @param unsorted_array Array to sort (won't be touched)
+ * @param size size of the array
+ * @return type_t* Pointer to the sorted array
+ */
+void selection_sort(const type_t* const unsorted_array, type_t* sorted_array, uint32_t size)
+{
+	// Create a copy of the array
+	memcpy(sorted_array, unsorted_array, (sizeof *sorted_array) * size);
+
+	usleep(10000000);
+	for (uint32_t i = 0; i < size; i++)
+	{
+		type_t min_index = i;
+
+		for (uint32_t j = i; j < size; j++)
+		{
+			if (sorted_array[min_index] > sorted_array[j])
+			{
+				min_index = j;
+			}	
+			usleep(50);
+		}
+
+		uint32_t tmp = sorted_array[i];
+		sorted_array[i] = sorted_array[min_index];
+		sorted_array[min_index] = tmp;
+
 	}
 }

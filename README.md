@@ -4,4 +4,8 @@ This program lets the user visualise sorting algorithms by displaying them in ac
 
 ## Screenshot
 
- ![Rendering](img/img.png)
+### Bubble Sort
+ ![Rendering-Bubble](img/Bubblesort.gif)
+
+ ### Selection sort
+ ![Rendering-Selection](img/selection-sort.gif)
