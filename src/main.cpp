@@ -170,7 +170,6 @@ void selection_sort(const type_t* const unsorted_array, type_t* sorted_array, ui
 	// Create a copy of the array
 	memcpy(sorted_array, unsorted_array, (sizeof *sorted_array) * size);
 
-	usleep(10000000);
 	for (uint32_t i = 0; i < size; i++)
 	{
 		type_t min_index = i;
